@@ -2,8 +2,7 @@
 # Script to automatically SSH in an ec2 instance.
 # Finds the correct identity key and address if required.
 # Accepts hostname or IP address as an argument.
-# Stores instanced previously connected to in a cache
-# for quick reconnetion.
+# Stores instanced previously connected to in a cache for quick reconnetion.
 
 # Comment out when not testing
 set -o posix
