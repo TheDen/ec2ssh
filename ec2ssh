@@ -112,7 +112,7 @@ if [ ! -n "$1" ]; then
 fi
 
 if [[ $# == 1 ]] ; then
-    if "ipcalc $1" | grep -q  "INVALID ADDRESS"; then
+    if ipcalc "$1" | grep -q  "INVALID ADDRESS"; then
         ip=false
     else
         ip=true
