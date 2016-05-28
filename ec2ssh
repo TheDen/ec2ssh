@@ -5,7 +5,6 @@
 # Stores instanced previously connected to in a cache
 # for quick reconnetion.
 
-
 # Comment out when not testing
 set -o posix
 
@@ -86,7 +85,6 @@ function sshcheck() {
     ssh -i "$identity_dir$identity" "$1"@"$2"
 }
 
-
 while getopts ":u:p" opt; do
     case $opt in
 	u)
@@ -128,5 +126,4 @@ fi
 cachecheck "$1"
 keyname "$1"
 ipaddress "$1"
-
 sshcheck "$user" "$sship"
