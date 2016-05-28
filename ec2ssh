@@ -2,8 +2,9 @@
 # Script to automatically SSH in an ec2 instance.
 # Finds the correct identity key and address if required.
 # Accepts hostname or IP address as an argument.
-# Stores instanced previously connected to in a cache for quick reconnetion.
+# Stores instances previously connected to in a cache for quick reconnetion.
 # Dependencies: awscli, ipcalc
+# TODO: remove ipcalc dep
 
 # Comment out when not testing
 set -o posix
