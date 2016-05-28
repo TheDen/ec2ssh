@@ -1,8 +1,9 @@
 #!/bin/bash
-# Script to automatically SSH into an ec2 instance.
+# Script to automatically SSH in an ec2 instance.
 # Finds the correct identity key and address if required.
-# Acc
-# Stores instanced previously connected to in a cache.
+# Accepts hostname or IP address as an argument.
+# Stores instanced previously connected to in a cache
+# for quick reconnetion.
 
 
 # Comment out when not testing
