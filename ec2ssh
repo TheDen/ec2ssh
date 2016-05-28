@@ -119,6 +119,9 @@ if [[ $# == 1 ]] ; then
     else
         ip=true
     fi
+else 
+    echo "Unknown paramters or extra arguments"
+    exit 1;
 fi
 
 cachecheck "$1"
