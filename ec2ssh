@@ -1,11 +1,18 @@
 #!/bin/bash
+# Script to automatically SSH into an ec2 instance.
+# Finds the correct identity key and address if required.
+# Acc
+# Stores instanced previously connected to in a cache.
 
+
+# Disable when not testing
 set -o posix
 
-# Don't forget the trailing slash!
+# Don't forget the trailing slash in the identity folder!
 identity_dir=$HOME/pem_keys/
 CACHE=$HOME/.ssh/ssh_cache_aws
 
+# Defaults to root user in the private network
 user="root"
 network="private"
 
@@ -39,7 +46,7 @@ function keyname() {
     if [ ! -n "$key" ]; then
 	exit 1;
     fi
-    identity=$(basename $(find $identity_dir -name "$key*"))
+    identity=$(basename "$(find "$identity_dir" -name "$key*")")
     #echo "$key"
     echo "Identity: $identity"
 }
@@ -72,7 +79,7 @@ ipaddress() {
 
 function sshcheck() {
     echo -e "$ec2name|ssh -i $identity_dir$identity "$1"@$2" >> "$CACHE"
-    awk '!a[$0]++' $CACHE | awk 'NF' > "$CACHE.new"; mv "$CACHE" "$CACHE.bak"; mv "$CACHE.new" "$CACHE"
+    awk '!a[$0]++' "$CACHE" | awk 'NF' > "$CACHE.new"; mv "$CACHE" "$CACHE.bak"; mv "$CACHE.new" "$CACHE"
     echo "Added to cache $CACHE"
     echo "ssh -i $identity_dir$identity "$1"@$2"
     ssh -i "$identity_dir$identity" "$1"@"$2"
@@ -83,8 +90,6 @@ while getopts ":u:p" opt; do
     case $opt in
 	u)
 	    user="$OPTARG"
-	    echo $user
-	  #echo "-a was triggered, Parameter: $OPTARG" >&2
 	    ;;
 	p)
             network="public"
@@ -102,14 +107,14 @@ done
 shift $((OPTIND -1))
 
 if [ ! -n "$1" ]; then
-    echo -e "Usage: ec2ssh [ OPTIONS ] HOST\n\nOptions supported by ec2ssh:
-   -u \tChoose which user to ssh in as. Default is root
-   -p\tUses the public ip to ssh in instance. Default is the private ip"
+    echo -e "Usage: ec2ssh [ OPTIONS ] HOST\n\nHOST: Instance name or IP address\nOptions:
+   -u\tChoose which user to ssh as, e.g. \"ec2ssh -u ec2-user instance-id\". Default is root
+   -p\tSwitch uses the instances public ip to ssh. Default is the private ip"
     exit 1;
 fi
 
 if [[ $# == 1 ]] ; then
-    if ipcalc $1 | grep -q  "INVALID ADDRESS"; then
+    if "ipcalc $1" | grep -q  "INVALID ADDRESS"; then
         ip=false
     else
         ip=true
