@@ -3,6 +3,7 @@
 # Finds the correct identity key and address if required.
 # Accepts hostname or IP address as an argument.
 # Stores instanced previously connected to in a cache for quick reconnetion.
+# Dependencies: awscli, ipcalc
 
 # Comment out when not testing
 set -o posix
