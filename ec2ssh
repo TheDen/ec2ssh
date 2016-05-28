@@ -1,0 +1,123 @@
+#!/bin/bash
+
+set -o posix
+
+# Don't forget the trailing slash!
+identity_dir=$HOME/pem_keys/
+CACHE=$HOME/.ssh/ssh_cache_aws
+
+user="root"
+network="private"
+
+if [ ! -f "$CACHE" ]; then
+    touch "$CACHE"
+fi
+
+function cachecheck() {
+    if  grep -q "$1" "$CACHE"; then
+	linematch="$(grep -n "$1" "$CACHE" | awk -F ":" '{print $1}')"
+	echo "$1 in cache $CACHE:"$linematch"" 
+	echo $(cat $CACHE |  awk '!a[$0]++' | grep  "$1" | awk -F "|" '{print $2}');
+	$(cat $CACHE |  awk '!a[$0]++' | grep  "$1" | awk -F "|" '{print $2}');
+	exit 0;
+    else
+	echo "$1 not in cache $CACHE..."
+    fi
+}
+
+function keyname() { 
+    if [ "$ip" = false ]; then
+	ec2name="$1"
+	key=$(aws ec2  describe-instances --filters "Name=tag:Name,Values=$1" --query 'Reservations[*].Instances[*].KeyName' --output text)
+    else
+	key="$(aws ec2  describe-instances --filters "Name=private-ip-address,Values=$1" --query 'Reservations[*].Instances[*].KeyName' --output text)"
+	if [ ! -n "$key" ]; then
+	    echo "trying public ip address for keyair..."
+	    key=$(aws ec2  describe-instances --filters "Name=ip-address,Values=$1" --query 'Reservations[*].Instances[*].KeyName' --output text)
+	fi
+    fi
+    if [ ! -n "$key" ]; then
+	exit 1;
+    fi
+    identity=$(basename $(find $identity_dir -name "$key*"))
+    #echo "$key"
+    echo "Identity: $identity"
+}
+
+ipaddress() {
+    if [ "$ip" == false ]; then
+	if [ "$network" == private ]; then 
+	    privip="$(aws ec2  describe-instances --filters "Name=tag:Name,Values=$1" --query 'Reservations[*].Instances[*].PrivateIpAddress' --output text)"
+	    sship="$privip"
+	    echo "IP: $sship"
+	else 
+	    pubip="$(aws ec2  describe-instances --filters "Name=tag:Name,Values=$1" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)"
+	    sship="$pubip"
+	    echo "IP: $sship"
+	fi
+    else
+	ec2name="$(aws ec2  describe-instances --filters "Name=private-ip-address,Values=$1" --query 'Reservations[*].Instances[*].KeyName' --output text)"
+        if [ ! -n "$ec2name" ]; then
+	    echo "trying public ip address..."
+	    ec2name="$(aws ec2  describe-instances --filters "Name=ip-address,Values=$1" --query 'Reservations[*].Instances[*].KeyName' --output text)"
+        fi
+	sship="$1"
+	echo "IP: $sship"
+    fi
+    
+    if [ ! -n "$sship" ]; then
+	exit 1;
+    fi
+}
+
+function sshcheck() {
+    echo -e "$ec2name|ssh -i $identity_dir$identity "$1"@$2" >> "$CACHE"
+    awk '!a[$0]++' $CACHE | awk 'NF' > "$CACHE.new"; mv "$CACHE" "$CACHE.bak"; mv "$CACHE.new" "$CACHE"
+    echo "Added to cache $CACHE"
+    echo "ssh -i $identity_dir$identity "$1"@$2"
+    ssh -i "$identity_dir$identity" "$1"@"$2"
+}
+
+
+while getopts ":u:p" opt; do
+    case $opt in
+	u)
+	    user="$OPTARG"
+	    echo $user
+	  #echo "-a was triggered, Parameter: $OPTARG" >&2
+	    ;;
+	p)
+            network="public"
+            ;;
+	\?)
+	    echo "Invalid option: -$OPTARG" >&2
+	    exit 1
+	    ;;
+	:)
+	    echo "Option -$OPTARG requires an argument." >&2
+	    exit 1
+	    ;;
+    esac
+done
+shift $((OPTIND -1))
+
+if [ ! -n "$1" ]; then
+    echo -e "Usage: ec2ssh [ OPTIONS ] HOST\n\nOptions supported by ec2ssh:
+   -u \tChoose which user to ssh in as. Default is root
+   -p\tUses the public ip to ssh in instance. Default is the private ip"
+    exit 1;
+fi
+
+if [[ $# == 1 ]] ; then
+    if ipcalc $1 | grep -q  "INVALID ADDRESS"; then
+        ip=false
+    else
+        ip=true
+    fi
+fi
+
+cachecheck "$1"
+keyname "$1"
+ipaddress "$1"
+
+sshcheck "$user" "$sship"
