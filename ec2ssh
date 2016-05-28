@@ -5,7 +5,7 @@
 # Stores instanced previously connected to in a cache.
 
 
-# Disable when not testing
+# Comment out when not testing
 set -o posix
 
 # Don't forget the trailing slash in the identity folder!
