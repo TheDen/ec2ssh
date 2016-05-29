@@ -5,9 +5,6 @@
 # Stores instances previously connected to in a cache for quick reconnetion.
 # Dependencies: awscli
 
-# Uncomment when testing for posix compliancy
-#set -o posix
-
 # Don't forget the trailing slash in the identity folder!
 identity_dir="$HOME/pem_keys/"
 CACHE="$HOME/.ssh/ssh_cache_aws"
