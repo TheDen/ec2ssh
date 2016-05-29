@@ -9,8 +9,8 @@
 #set -o posix
 
 # Don't forget the trailing slash in the identity folder!
-identity_dir=$HOME/pem_keys/
-CACHE=$HOME/.ssh/ssh_cache_aws
+identity_dir="$HOME/pem_keys/"
+CACHE="$HOME/.ssh/ssh_cache_aws"
 
 # Defaults to root user in the private network
 user="root"
@@ -96,11 +96,11 @@ while getopts ":u:p" opt; do
             network="public"
             ;;
 	\?)
-	    echo "Invalid option: -$OPTARG" 
+	    echo "Invalid option: -"$OPTARG"" 
 	    exit 1
 	    ;;
 	:)
-	    echo "Option -$OPTARG requires an argument"
+	    echo "Option -"$OPTARG" requires an argument"
 	    exit 1
 	    ;;
     esac
