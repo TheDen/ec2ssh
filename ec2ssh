@@ -22,7 +22,7 @@ if [ ! -f "$CACHE" ]; then
 fi
 
 function cachecheck() {
-    if  grep -q "$1" "$CACHE"; then
+    if grep -qE "^$1\||$1$" "$CACHE"; then
 	linematch="$(grep -n "$1" "$CACHE" | awk -F ":" '{print $1}')"
 	echo "$1 in cache $CACHE:"$linematch"" 
 	echo $(cat $CACHE |  awk '!a[$0]++' | grep  "$1" | awk -F "|" '{print $2}');
