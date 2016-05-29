@@ -44,9 +44,10 @@ function keyname() {
 	fi
     fi
     if [ ! -n "$key" ]; then
+	echo "Instance identity not found"
 	exit 1;
     fi
-    identity=$(basename "$(find "$identity_dir" -name "$key*")")
+    identity=$(basename "$(find "$identity_dir" -name "$key*" | head -n 1)")
     #echo "$key"
     echo "Identity: $identity"
 }
