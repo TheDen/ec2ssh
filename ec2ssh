@@ -20,9 +20,9 @@ fi
 cachecheck() {
     if grep -qE "^$1\||$1$" "$CACHE"; then
 	linematch="$(grep -n "$1" "$CACHE" | awk -F ":" '{print $1}')"
-	echo "$1 in cache $CACHE:"$linematch"" 
-	echo $(awk '!a[$0]++' "$CACHE" | grep  "$1" | awk -F "|" '{print $2}');
-	$(awk '!a[$0]++' "$CACHE" | grep  "$1" | awk -F "|" '{print $2}');
+	echo "$1 in cache $CACHE:$linematch" 
+	echo "$(awk '!a[$0]++' "$CACHE" | grep  "$1" | awk -F "|" '{print $2}')";
+	awk '!a[$0]++' "$CACHE" | grep  "$1" | awk -F "|" '{print $2}';
 	exit 0;
     else
 	echo "$1 not in cache $CACHE..."
@@ -81,7 +81,7 @@ sshcheck() {
     printf "%s|ssh -i %s%s %s@%s\n" "$ec2name" "$identity_dir" "$identity" "$1" "$2" >> "$CACHE"
     awk '!a[$0]++' "$CACHE" | awk 'NF' > "$CACHE.new"; mv "$CACHE" "$CACHE.bak"; mv "$CACHE.new" "$CACHE"
     echo "Added to cache $CACHE"
-    echo "ssh -i $identity_dir$identity "$1"@$2"
+    echo "ssh -i $identity_dir$identity $1@$2"
     ssh -i "$identity_dir$identity" "$1"@"$2"
 }
 
@@ -94,11 +94,11 @@ while getopts ":u:p" opt; do
             network="public"
             ;;
 	\?)
-	    echo "Invalid option: -"$OPTARG"" 
+	    echo "Invalid option: -$OPTARG" 
 	    exit 1
 	    ;;
 	:)
-	    echo "Option -"$OPTARG" requires an argument"
+	    echo "Option -$OPTARG requires an argument"
 	    exit 1
 	    ;;
     esac
