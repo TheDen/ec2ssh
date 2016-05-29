@@ -74,6 +74,7 @@ ipaddress() {
     fi
     
     if [ ! -n "$sship" ]; then
+	echo "Instance identity not found"
 	exit 1;
     fi
 }
@@ -95,11 +96,11 @@ while getopts ":u:p" opt; do
             network="public"
             ;;
 	\?)
-	    echo "Invalid option: -$OPTARG" >&2
+	    echo "Invalid option: -$OPTARG" 
 	    exit 1
 	    ;;
 	:)
-	    echo "Option -$OPTARG requires an argument." >&2
+	    echo "Option -$OPTARG requires an argument"
 	    exit 1
 	    ;;
     esac
