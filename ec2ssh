@@ -3,11 +3,10 @@
 # Finds the correct identity key and address if required.
 # Accepts hostname or IP address as an argument.
 # Stores instances previously connected to in a cache for quick reconnetion.
-# Dependencies: awscli, ipcalc
-# TODO: remove ipcalc dep
+# Dependencies: awscli
 
-# Comment out when not testing
-set -o posix
+# Uncomment when testing 
+#set -o posix
 
 # Don't forget the trailing slash in the identity folder!
 identity_dir=$HOME/pem_keys/
