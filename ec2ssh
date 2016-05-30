@@ -18,8 +18,8 @@ if [ ! -f "$CACHE" ]; then
 fi
 
 cachecheck() {
-    if grep -qE "^$1\||$1$" "$CACHE"; then
-	linematch="$(grep -n "$1" "$CACHE" | awk -F ":" '{print $1}')"
+    if grep -qE "^$HOST\|.*$user|$user.*$HOST$" "$CACHE"; then
+	linematch="$(grep -nE "$1.*$user|$user.*$1" "$CACHE" | awk -F ":" '{print $1}')"
 	echo "$1 in cache $CACHE:$linematch" 
 	echo "$(awk '!a[$0]++' "$CACHE" | grep  "$1" | awk -F "|" '{print $2}')";
 	$(awk '!a[$0]++' "$CACHE" | grep  "$1" | awk -F "|" '{print $2}');
@@ -77,7 +77,6 @@ ipaddress() {
 }
 
 sshcheck() {
-#    printf "$ec2name|ssh -i $identity_dir$identity "$1"@$2\n" >> "$CACHE"
     printf "%s|ssh -i %s%s %s@%s\n" "$ec2name" "$identity_dir" "$identity" "$1" "$2" >> "$CACHE"
     awk '!a[$0]++' "$CACHE" | awk 'NF' > "$CACHE.new"; mv "$CACHE" "$CACHE.bak"; mv "$CACHE.new" "$CACHE"
     echo "Added to cache $CACHE"
