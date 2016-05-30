@@ -9,7 +9,7 @@
 identity_dir="$HOME/pem_keys/"
 CACHE="$HOME/.ssh/ssh_cache_aws"
 
-# Defaults to root user in the private network
+# Defaults to root user in the private network.
 user="root"
 network="private"
 
