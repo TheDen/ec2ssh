@@ -18,7 +18,7 @@ if [ ! -f "$CACHE" ]; then
 fi
 
 cachecheck() {
-    if grep -qE "^$HOST\|.*$user|$user.*$HOST$" "$CACHE"; then
+    if grep -qE "^$1\|.*$user|$user.*$1" "$CACHE"; then
 	linematch="$(grep -nE "$1.*$user|$user.*$1" "$CACHE" | awk -F ":" '{print $1}')"
 	echo "$1 in cache $CACHE:$linematch" 
 	echo "$(awk '!a[$0]++' "$CACHE" | grep  "$1" | awk -F "|" '{print $2}')";
