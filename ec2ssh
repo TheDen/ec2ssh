@@ -21,8 +21,8 @@ cachecheck() {
     if grep -qE "^$1\|.*$user|$user.*$1" "$CACHE"; then
 	linematch="$(grep -nE "$1.*$user|$user.*$1" "$CACHE" | awk -F ":" '{print $1}')"
 	echo "$1 in cache $CACHE:$linematch" 
-	echo "$(awk '!a[$0]++' "$CACHE" | grep  "$1" | awk -F "|" '{print $2}')";
-	$(awk '!a[$0]++' "$CACHE" | grep  "$1" | awk -F "|" '{print $2}');
+	echo "$(awk '!a[$0]++' "$CACHE" | grep -E "$1.*$user|$user.*$1" | awk -F "|" '{print $2}')";
+	$(awk '!a[$0]++' "$CACHE" | grep -E "$1.*$user|$user.*$1" | awk -F "|" '{print $2}');
 	exit 0;
     else
 	echo "$1 not in cache $CACHE..."
@@ -51,7 +51,7 @@ keyname() {
 
 ipaddress() {
     if [ "$ip" = false ]; then
-	if [ "$network" = private ]; then 
+	if [ "$network" = "private" ]; then 
 	    privip="$(aws ec2  describe-instances --filters "Name=tag:Name,Values=$1" --query 'Reservations[*].Instances[*].PrivateIpAddress' --output text)"
 	    sship="$privip"
 	    echo "IP: $sship"
