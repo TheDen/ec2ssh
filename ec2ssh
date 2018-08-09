@@ -5,6 +5,17 @@
 # Stores instances previously connected to in a cache for quick reconnetion.
 # Dependencies: awscli
 
+cachecheck() {
+  if grep -qE "^$1\\|.*$user|$user.*$1" "$CACHE"; then
+    linematch="$(grep -nE "$1.*$user|$user.*$1" "$CACHE" | awk -F ":" '{print $1}')"
+    echo "$1 in cache $CACHE:$linematch"
+    $(awk '!a[$0]++' "$CACHE" | grep -E "$1.*$user|$user.*$1" | awk -F "|" '{print $2}');
+    exit 0;
+  else
+    echo "$1 not in cache $CACHE..."
+  fi
+}
+
 keyname() {
   if [ "$ip" = false ]; then
     ec2name="$1"
@@ -82,11 +93,11 @@ config() {
 }
 
 checkip() {
-	if echo "$1" | grep -Eq "^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}$"; then
-		ip=true
-	else
-		ip=false
-	fi
+  if echo "$1" | grep -Eq "^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}$"; then
+    ip=true
+  else
+    ip=false
+  fi
 }
 
 while getopts ":u:p" opt; do
@@ -116,10 +127,10 @@ fi
 config
 
 if [ $# = 1 ] ; then
-	checkip "$1"
+  checkip "$1"
 else
-	echo "Unknown paramters or extra arguments"
-	exit 1;
+  echo "Unknown paramters or extra arguments"
+  exit 1;
 fi
 
 cachecheck "$1"
